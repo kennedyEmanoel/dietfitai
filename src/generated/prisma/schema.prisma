@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Food {
+  id           String @id @default(uuid())
+  nameFood     String
+  protein      Float
+  carbohydrate Float
+  fat          Float
+}

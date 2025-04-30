@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "../../../generated/prisma";
 
-import { v4 as uuidv4 } from "uuid";
-
-interface Food {
-  id: string;
-  nameFood: string;
-  protein: number;
-  carbohydrate: number;
-  fat: number;
-}
-
-const foods: Food[] = [];
+const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,18 +20,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newFood: Food = {
-      id: uuidv4(),
-      nameFood,
-      protein,
-      carbohydrate,
-      fat,
-    };
-
-    foods.push(newFood);
+    const newFood = await prisma.food.create({
+      data: {
+        nameFood,
+        protein,
+        carbohydrate,
+        fat,
+      },
+    });
 
     return NextResponse.json(
-      { message: "Alimento adicionado com sucesso!", foods },
+      { message: "Alimento adicionado com sucesso!", food: newFood },
       { status: 201 }
     );
   } catch (error) {
@@ -54,6 +44,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const foods = await prisma.food.findMany();
+
     if (foods.length === 0) {
       return NextResponse.json(
         { message: "Nenhum alimento cadastrado" },
@@ -73,44 +65,45 @@ export async function GET() {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { nameFood } = await request.json();
+    const { id } = await request.json();
 
-    if (!nameFood || typeof nameFood !== "string") {
+    if (!id || typeof id !== "string") {
       return NextResponse.json(
-        { message: "Campo 'nameFood' inválido ou ausente." },
+        { message: "Campo 'id' inválido ou ausente." },
         { status: 400 }
       );
     }
 
-    const index = foods.findIndex((food) => food.nameFood === nameFood);
+    const deleteFood = await prisma.food.delete({
+      where: { id },
+    });
 
-    if (index === -1) {
+    if (!deleteFood) {
       return NextResponse.json(
         { message: "Alimento não encontrado." },
         { status: 404 }
       );
     }
 
-    foods.splice(index, 1);
-
     return NextResponse.json(
-      { message: `Alimento '${nameFood}' removido com sucesso!`, foods },
+      { message: `Alimento '${deleteFood.nameFood}' removido com sucesso!` },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erro no GET:", error);
+    console.error("Erro no DELETE:", error);
     return NextResponse.json(
-      { message: "Erro ao deletar o alimento" },
+      { message: "Erro ao deletar alimento" },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(response: NextResponse) {
+export async function PUT(request: NextRequest) {
   try {
-    const { id, nameFood, protein, carbohydrate, fat } = await response.json();
+    const { id, nameFood, protein, carbohydrate, fat } = await request.json();
 
     if (
+      !id ||
       !nameFood ||
       typeof nameFood !== "string" ||
       typeof protein !== "number" ||
@@ -123,25 +116,18 @@ export async function PUT(response: NextResponse) {
       );
     }
 
-    const index = foods.findIndex((food) => food.id === id);
-
-    if (index === -1) {
-      return NextResponse.json(
-        { message: "Alimento não encontrado." },
-        { status: 404 }
-      );
-    }
-
-    foods[index] = {
-      id,
-      nameFood,
-      protein,
-      carbohydrate,
-      fat,
-    };
+    const updatedFood = await prisma.food.update({
+      where: { id },
+      data: {
+        nameFood,
+        protein,
+        carbohydrate,
+        fat,
+      },
+    });
 
     return NextResponse.json(
-      { message: "Alimento atualizado com sucesso!", foods },
+      { message: "Alimento atualizado com sucesso!", food: updatedFood },
       { status: 200 }
     );
   } catch (error) {

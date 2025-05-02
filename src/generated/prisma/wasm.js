@@ -120,6 +120,23 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  password: 'password',
+  role: 'role',
+  sex: 'sex',
+  height: 'height',
+  weight: 'weight',
+  age: 'age',
+  PhysicalActivity: 'PhysicalActivity',
+  Objective: 'Objective',
+  BMR: 'BMR',
+  TDEE: 'TDEE',
+  RCI: 'RCI'
+};
+
 exports.Prisma.FoodScalarFieldEnum = {
   id: 'id',
   nameFood: 'nameFood',
@@ -138,8 +155,34 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.Role = exports.$Enums.Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+};
+
+exports.Sex = exports.$Enums.Sex = {
+  MASCULINO: 'MASCULINO',
+  FEMININO: 'FEMININO'
+};
+
+exports.PhysicalActivity = exports.$Enums.PhysicalActivity = {
+  SEDENTARIO: 'SEDENTARIO',
+  MODERADO: 'MODERADO',
+  INTENSO: 'INTENSO'
+};
+
+exports.Objective = exports.$Enums.Objective = {
+  EMAGRECER: 'EMAGRECER',
+  MANTER: 'MANTER',
+  GANHAR_MASSA: 'GANHAR_MASSA'
+};
 
 exports.Prisma.ModelName = {
+  User: 'User',
   Food: 'Food'
 };
 

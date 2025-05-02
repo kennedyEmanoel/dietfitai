@@ -8,10 +8,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id               String            @id @default(uuid())
+  name             String
+  email            String            @unique
+  password         String
+  role             Role
+  sex              Sex?
+  height           Float?
+  weight           Float?
+  age              Int?
+  PhysicalActivity PhysicalActivity?
+  Objective        Objective?
+  BMR              Float?
+  TDEE             Float?
+  RCI              Float?
+}
+
 model Food {
   id           String @id @default(uuid())
   nameFood     String
   protein      Float
   carbohydrate Float
   fat          Float
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Sex {
+  MASCULINO
+  FEMININO
+}
+
+enum PhysicalActivity {
+  SEDENTARIO
+  MODERADO
+  INTENSO
+}
+
+enum Objective {
+  EMAGRECER
+  MANTER
+  GANHAR_MASSA
 }

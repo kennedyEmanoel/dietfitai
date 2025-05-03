@@ -3,9 +3,35 @@ import { PrismaClient } from "../../../generated/prisma";
 
 const prisma = new PrismaClient();
 
+export async function invalidData() {
+  return NextResponse.json({ message: "Dados inválidos." }, { status: 400 });
+}
+
+type Roles = "ADMIN" | "USER";
+
+function isValidRole(role: unknown): role is Roles {
+  const allowedRoles: Roles[] = ["ADMIN", "USER"];
+  return typeof role === "string" && allowedRoles.includes(role as Roles);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { name, email, password, role } = await request.json();
+
+    if (
+      typeof name !== "string" ||
+      name.trim() === "" ||
+      typeof email !== "string" ||
+      email.trim() === "" ||
+      typeof password !== "string" ||
+      password.trim() === ""
+    ) {
+      return invalidData();
+    }
+
+    if (!isValidRole(role)) {
+      invalidData();
+    }
 
     const newUser = await prisma.user.create({
       data: {

@@ -54,3 +54,24 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const users = await prisma.user.findMany();
+
+    if (users.length === 0) {
+      return NextResponse.json(
+        { message: "Nenhum user cadastrado" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ users }, { status: 200 });
+  } catch (error) {
+    console.error("Erro no GET:", error);
+    return NextResponse.json(
+      { message: "Erro ao buscar users" },
+      { status: 500 }
+    );
+  }
+}

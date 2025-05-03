@@ -75,3 +75,31 @@ export async function GET() {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json();
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json(
+        { message: "Campo 'id' inválido ou ausente." },
+        { status: 400 }
+      );
+    }
+
+    const deleteUser = await prisma.user.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: `User '${deleteUser.name}' removido com sucesso!` },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Erro no DELETE:", error);
+    return NextResponse.json(
+      { message: "Erro ao deletar user" },
+      { status: 500 }
+    );
+  }
+}

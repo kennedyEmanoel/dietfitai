@@ -24,13 +24,10 @@ export async function POST(request: NextRequest) {
       typeof email !== "string" ||
       email.trim() === "" ||
       typeof password !== "string" ||
-      password.trim() === ""
+      password.trim() === "" ||
+      !isValidRole(role)
     ) {
       return invalidData();
-    }
-
-    if (!isValidRole(role)) {
-      invalidData();
     }
 
     const newUser = await prisma.user.create({
@@ -99,6 +96,41 @@ export async function DELETE(request: NextRequest) {
     console.error("Erro no DELETE:", error);
     return NextResponse.json(
       { message: "Erro ao deletar user" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, name, password } = await request.json();
+
+    if (
+      !id ||
+      typeof name !== "string" ||
+      name.trim() === "" ||
+      typeof password !== "string" ||
+      password.trim() === ""
+    ) {
+      invalidData();
+    }
+
+    const updateUser = await prisma.user.update({
+      where: { id },
+      data: {
+        name,
+        password,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "User atualizado com sucesso!", user: updateUser },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Erro no PUT:", error);
+    return NextResponse.json(
+      { message: "Erro ao atualizar user" },
       { status: 500 }
     );
   }

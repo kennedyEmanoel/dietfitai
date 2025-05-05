@@ -7,53 +7,87 @@ export async function invalidData() {
   return NextResponse.json({ message: "Dados inválidos." }, { status: 400 });
 }
 
-type Roles = "ADMIN" | "USER";
-type Sexs = "MASCULINO" | "FEMININO";
-type PA = "SEDENTARIO" | "MODERADO" | "INTENSO";
-type Objective = "EMAGRECER" | "MANTER" | "GANHAR_MASSA";
+// type Roles = "ADMIN" | "USER";
+// type Sexs = "MASCULINO" | "FEMININO";
+// type PA = "SEDENTARIO" | "MODERADO" | "INTENSO";
+// type Objective = "EMAGRECER" | "MANTER" | "GANHAR_MASSA";
 
-function isValidRole(role: unknown): role is Roles {
-  const allowedRoles: Roles[] = ["ADMIN", "USER"];
-  return typeof role === "string" && allowedRoles.includes(role as Roles);
-}
+// function isValidRole(role: unknown): role is Roles {
+//   const allowedRoles: Roles[] = ["ADMIN", "USER"];
+//   return typeof role === "string" && allowedRoles.includes(role as Roles);
+// }
 
-function isValidSex(sex: unknown): sex is Sexs {
-  const allowedSexs: Sexs[] = ["MASCULINO", "FEMININO"];
-  return typeof sex === "string" && allowedSexs.includes(sex as Sexs);
-}
+// function isValidSex(sex: unknown): sex is Sexs {
+//   const allowedSexs: Sexs[] = ["MASCULINO", "FEMININO"];
+//   return typeof sex === "string" && allowedSexs.includes(sex as Sexs);
+// }
 
-function isValidPA(pa: unknown): pa is PA {
-  const allowedPA: PA[] = ["SEDENTARIO", "MODERADO", "INTENSO"];
-  return typeof pa === "string" && allowedPA.includes(pa as PA);
-}
-function isValidObjective(objective: unknown): objective is Objective {
-  const allowedObjective: Objective[] = ["EMAGRECER", "MANTER", "GANHAR_MASSA"];
-  return (
-    typeof objective === "string" &&
-    allowedObjective.includes(objective as Objective)
-  );
-}
+// function isValidPA(pa: unknown): pa is PA {
+//   const allowedPA: PA[] = ["SEDENTARIO", "MODERADO", "INTENSO"];
+//   return typeof pa === "string" && allowedPA.includes(pa as PA);
+// }
+// function isValidObjective(objective: unknown): objective is Objective {
+//   const allowedObjective: Objective[] = ["EMAGRECER", "MANTER", "GANHAR_MASSA"];
+//   return (
+//     typeof objective === "string" &&
+//     allowedObjective.includes(objective as Objective)
+//   );
+// }
 
-interface UserInput {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: "USER" | "ADMIN";
-  sex?: "MASCULINO" | "FEMININO";
-  height?: number;
-  weight?: number;
-  age?: number;
-  PhysicalActivity?: "SEDENTARIO" | "MODERADO" | "INTENSO";
-  Objective?: "EMAGRECER" | "MANTER" | "GANHAR_MASSA";
-  BMR?: number;
-  TDEE?: number;
-  RCI?: number;
-}
+// type UserInput = {
+//   id: string;
+//   name: string;
+//   email: string;
+//   password: string;
+//   role: "USER" | "ADMIN";
+//   sex?: "MASCULINO" | "FEMININO";
+//   height?: number;
+//   weight?: number;
+//   age?: number;
+//   PhysicalActivity?: "SEDENTARIO" | "MODERADO" | "INTENSO";
+//   Objective?: "EMAGRECER" | "MANTER" | "GANHAR_MASSA";
+//   BMR?: number;
+//   TDEE?: number;
+//   RCI?: number;
+// };
+
+// function isValidUserInput(obj: unknown): obj is UserInput {
+//   if (typeof obj !== "object" || obj === null) {
+//     return false;
+//   }
+
+//   const user = obj as Partial<UserInput>;
+
+//   const required = ["id", "name", "email", "password", "role"] as const;
+
+//   for (const field of required) {
+//     if (
+//       typeof user[field] !== "string" ||
+//       (user[field] as string).trim() === ""
+//     ) {
+//       return false;
+//     }
+//   }
+
+//   if (user.sex !== undefined && typeof user.sex !== "string") return false;
+//   if (user.height !== undefined && typeof user.height !== "number")
+//     return false;
+//   if (user.weight !== undefined && typeof user.weight !== "number")
+//     return false;
+//   if (user.age !== undefined && typeof user.age !== "number") return false;
+//   if (
+//     user.PhysicalActivity !== undefined &&
+//     typeof user.PhysicalActivity !== "string"
+//   )
+//     return false;
+//   if (user.Objective !== undefined && typeof user.Objective !== "string")
+//     return false;
+
+//   return true;
+// }
 
 export async function POST(request: NextRequest) {
   try {
-    const body: UserInput = await request.json();
     const {
       name,
       email,
@@ -65,37 +99,19 @@ export async function POST(request: NextRequest) {
       age,
       PhysicalActivity,
       Objective,
-    } = body;
-
-    console.log(
-      name,
-      email,
-      password,
-      role,
-      sex,
-      height,
-      weight,
-      age,
-      PhysicalActivity,
-      Objective
-    );
+    } = await request.json();
 
     if (
-      typeof body.name !== "string" ||
-      name.trim() === "" ||
+      typeof name !== "string" ||
+      name.trim() ||
       typeof email !== "string" ||
-      email.trim() === "" ||
+      email.trim() ||
       typeof password !== "string" ||
-      password.trim() === "" ||
-      typeof height !== "number" ||
-      typeof weight !== "number" ||
-      typeof age !== "number" ||
-      !isValidRole(role) ||
-      !isValidSex(sex) ||
-      !isValidPA(PhysicalActivity) ||
-      !isValidObjective(Objective)
+      password.trim() ||
+      typeof role !== "string" ||
+      role.trim()
     ) {
-      return invalidData();
+      invalidData();
     }
 
     const newUser = await prisma.user.create({
@@ -112,9 +128,8 @@ export async function POST(request: NextRequest) {
         Objective,
       },
     });
-
     return NextResponse.json(
-      { message: "User adicionado com sucesso!", user: newUser },
+      { message: "User adicionado com sucesso!", newUser },
       { status: 201 }
     );
   } catch (error) {
@@ -129,7 +144,6 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const users = await prisma.user.findMany();
-    console.log(users);
 
     if (users.length === 0) {
       return NextResponse.json(
@@ -150,8 +164,7 @@ export async function GET() {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const body: UserInput = await request.json();
-    const { id } = body;
+    const { id } = await request.json();
 
     if (!id || typeof id !== "string") {
       return NextResponse.json(
@@ -179,8 +192,7 @@ export async function DELETE(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const body: UserInput = await request.json();
-    const { id, name, password } = body;
+    const { id, name, password } = await request.json();
 
     if (
       !id ||
